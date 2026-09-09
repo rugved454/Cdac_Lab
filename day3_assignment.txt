@@ -1,0 +1,399 @@
+
+Assignments – Day 3
+
+Grouping Data together (Use emp, dept and salgrade table)
+1.	Find how much salary amount is invested in the employees working as a salesman of the company.
+
+ans:
+	select sum(sal) from emp where job='salesman';
+
+2.	Find minimum and maximum salary earned by any employee working as a clerk in the company.
+ans:
+	select max(sal),min(sal)
+	from emp where job='clerk';
+
+3.	Find how many employees were hired in the year 1980.
+ans:
+		select * from emp where year(hiredate)='1980';
+		
+		
+4.	Display  sum of salary and minimum salary for all employees who are managers.
+ans: 
+		select sum(sal),min(sal) fro emp where job='manager';
+		
+5.	Find total salary for each dept where there is more than 1 employee working as a clerk .  Use emp table.  
+ans:	
+select deptno , sum(sal) from emp where job='clerk' group by deptno having count(*)>1;
+
+6.	Calculate how many employees earn sal more than 1500 in each dept. Arrange the data according to the deptno in ascending order.
+
+ans:	
+		select deptno,count(*) from emp where sal>1500 group by deptno order by deptno;
+
+	
+7.	Display number of clerks  in each department.
+ans:	
+		select deptno,count(*) from  emp where job='clerk' group by deptno;
+8.	List minimum salary for each department.
+
+ans:
+		select deptno,min(sal) from emp group by deptno;
+		
+9.	Calculate total amount invested by company in the salary of employees for each and every department. List deptno and total of salaries if total is more than 10000.
+ans:
+		select deptno,sum(sal) from emp group by deptno having sum(sal)>10000;
+		
+		
+10.	Display job wise sum of salary if sum salary >5000 for all departments. Excluding dept 30.
+ans:
+
+		select deptno,sum(sal) from emp where deptno!=30 group by deptno having sum(sal)>5000 ;
+		
+
+11.	Display max sal   for manager  
+       Expected output: Numbers may change depending the data in your table.
+       +---------------+----------------+
+       | max(sal)     | job             |
+       +---------------+---------------+
+       |  2975.00    | MANAGER |
+       +---------------+----------------+
+ans:
+
+		select max(sal),job from emp where job='manager' group by job;
+	   
+	   
+	   
+	   
+12.	List all   jobs and average salary of that job and the   number of   employees in that job.
+Expected   output   :  Numbers may change depending the data in your table.
+    +-----------+-------------+-----------------+
+    | job       | Avg Salary  | No of Employees |
+    +-----------+-------------+-----------------+
+    | CLERK     | 1037.500000 |               4 |
+    | SALESMAN  | 1400.000000 |               4 |
+    | MANAGER   | 2758.333333 |               3 |
+    | ANALYST   | 3000.000000 |               2 |
+    | PRESIDENT | 5000.000000 |               1 |
+    +-----------+-------------+-----------------+
+	
+ans:	
+		select job,avg(sal),count(*) from emp group by job; 
+
+
+
+13.	Display the department number and the employee count having at least 4 employees working for it.
+
+ans:
+		select deptno,count(*) from emp group by deptno having count(*)>4;
+
+
+
+14.	Display the count of employees getting commission.
+ans: 
+		select count(*) from emp where comm is not null and comm>0; 
+
+
+15.	Find minimum   salary   in emp table for emps hired in year 1981.
+ans: 	
+		select min(sal) from emp where year(hiredate)=1981 ;
+
+
+16.	Find avg salary earned by employees who have been working for an organization for more than 44 years.,
+
+ans:
+		select avg(sal) from emp where (year(curdate()) - year(hiredate)) > 44;
+		
+		
+17.	Find number of managers in the organization earning even salary.
+ans:	
+		select count(*) from emp where sal%2!=0 and job='manager';	
+			
+
+
+18.	Display count of employees joined each year in the organization.
+Expected output: Numbers may change depending the data in your table.
+
++---------------------+---------------+
+| year(hiredate)  | count(*)    |
++---------------------+---------------+
+|           1980        |           1       |
+|           1981        |       10         |
+|           1982        |        2          |
+|           1983        |        1          |
++--------------------+----------------+
+
+
+ans:
+
+		select year(hiredate),count(*) from emp  group by year(hiredate);
+
+
+
+19.	Find duplicate salary entry in the table.
+ANS:	
+
+			select count(*),sal from emp group by sal having count(*)>1;
+
+
+20.	Count number of employees working in dept 30 as a manager.
+
+ans:
+
+		select count(*) from emp where deptno=30 and job='manager';
+		
+21.	Count number of employees earning sal more than 1300 for each dept
+ans:
+
+	select count(*),deptno from emp where sal>1300 group by deptno;
+
+
+
+
+
+Create following tables for given schema. Apply constraints as mentioned in the schema.
+
+faculty(tid PK, tname not null , cid fk, salary default 20000,experience in years check >=10 )
+
+ faculty Table
+tid 	tname    	 cid 	salary	experience
+t1	Amit	c2	Your data	Your data
+t2	Rajan	c1	Your data	Your data
+t3	Shruti	c2	Your data	Your data
+t4	Arti	c2	Your data	Your data
+t5	Sameer	c3	Your data	Your data
+t6	Sanjay	null	Your data	Your data
+t7	Soha	null	Your data	Your data
+
+ans:
+	create table faculty (
+		tid varchar(10),
+		tname varchar(20) not null,
+		cid varchar(20),
+		salary decimal(10,2) default 20000,
+		experience int check (experience >= 10),
+		constraint pk_tid primary key(tid),
+		foreign key (cid) references modules(cid)
+		);
+		
+
+modules(cid pk, cname unique not null, fees default 5000)
+
+modules table
+cid	cname	fees
+c1	Core Java	7000
+c2	Linux	8000
+c3	Data Structure	10000
+c4	Python	12000
+c5	Dot Net	null
+c6	Big Data	20000
+
+ans:
+		create table modules(
+		cid varchar(10) primary key,
+		cname varchar(20) not null unique,
+		fees decimal(10,2) Default 5000
+	
+		);
+		
+								
+Perform following operations and check if any errors. (Since you are using constraints on the table, error will occur. Just study the errors. You are not expected to resolve them.)
+
+1. update cid of Dot Net to c8
+
+ans:
+		update modules set cid='c8' where cname='Dot Net';
+
+	
+
+2. update cid of Sanjay to c2 and cid of Soha to c15
+ans:	
+		update faculty set cid='c2' where tid ='t6';
+		update faculty set cid='c15' where tid='t7';
+		
+		ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`collegebatch2`.`faculty`, CONSTRAINT `faculty_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `modules` (`cid`))
+
+3. insert in faculty(t8,'Miller', c17,20000);
+ans: 	
+		insert into faculty(tid, tname, cid, salary, experience)      values('t8','Miller','c17',20000,10);
+		
+		Cannot add or update a child row: a foreign key constraint fails (`collegebatch2`.`faculty`, CONSTRAINT `faculty_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `modules` (`cid`))
+
+
+4. Delete Big Data entry from module table 
+ans:
+		delete from modules where cid='c6';
+		
+
+5. Delete Linux entry from module table
+ans:
+		delete from modules where cid=' c2';
+
+6. Drop table module
+ans:
+		drop table modules;
+
+	 Cannot drop table 'modules' referenced by a foreign key constraint 'faculty_ibfk_1' on table 'faculty'.
+	 
+
+
+Create following tables with proper constraints
+book(bid, bname, lid ,aid)
+bid-PK use auto_increment
+lid-FK on delete set null
+aid-FK on delete set null
+author(aid, aname)
+aid-PK use auto_increment
+language(lid, lname)
+lid-PK use auto_increment 
+author table
+aid	aname
+1	J.K.Rowling
+2	Munshi Premchand
+3	Mario Puzo
+4	Ranjeet Desai
+
+language table
+lid	lname
+1	Marathi
+2	English
+3	Hindi
+
+book table
+bid	bname	lid	aid
+1	 Godan	 3	2
+2	Shriman Yogi	1	4
+3	Harry Potter and the goblet of fire	2	1
+4	The Godfather	2	3
+ans:
+
+	CREATE TABLE language (
+	lid INT AUTO_INCREMENT PRIMARY KEY,
+	lname VARCHAR(50) NOT NULL
+	);
+
+	CREATE TABLE author (
+		aid INT AUTO_INCREMENT PRIMARY KEY,
+		aname VARCHAR(100) NOT NULL
+	);
+
+	CREATE TABLE book (
+		bid INT AUTO_INCREMENT PRIMARY KEY,
+		bname VARCHAR(100) NOT NULL,
+		lid INT,
+		aid INT,
+		FOREIGN KEY (lid) REFERENCES language(lid) ON DELETE SET NULL,
+		FOREIGN KEY (aid) REFERENCES author(aid) ON DELETE SET NULL
+	);
+
+
+
+
+1.	Delete language 'Marathi' from language table and see the changes in language as well book table
+
+ans:
+	delete from language where lname='marathi';
+
+
+
+2.	Delete author 'J.K.Rowling'  from author table and see the changes in author table as well book  table.
+ans: 
+	delete from author where aname='J.K.Rowling';
+
+3.	Drop tables 
+ans: 	
+	drop table book,author,language;
+
+ 
+Use Banking database to solve below queries
+
+
+1.	Find **total number of customers**.
+ans:
+	select count(*) from customer;
+	
+	
+	
+2.	Count **total number of transactions**.
+ans:
+	select count(*) from transactions;
+	
+	
+	
+3.	Count number of **accounts by account type**. Display Account type and its count.
+ans:
+	select count(*),account_type from account group by account_type;
+	
+	
+	
+4.	Show **total loan amount**.
+ans:
+	select sum(amount) from loan;
+	
+	
+	
+	
+5.	Find **number of customers in each branch**.
+ans: 
+		
+
+	select count(*),branch_id from customer group by branch_id;
+	
+
+6.	Show **total transaction amount per account* 
+ans:
+	
+	select account_id,sum(amount) 
+	from transactions 
+	group by account_id;
+	
+	
+
+7.	Count total number of accounts 
+ans:
+
+	select count(*) from account;
+	
+	
+8.	Display **customer name and account balance**.
+ans:
+
+	select c.name,a.balance
+	from customer c
+	join account a on c.customer_id=a.customer_id;
+		
+
+9.	Show **customer name, branch name**.
+ans:
+	select c.name, b.branch_name 
+	from customer c 
+	join branch b on c.branch_id = b.branch_id;
+
+
+
+10.	Display **customer name and loan amount**.\
+
+ans: 	select c.name,l.amount
+from customer c1join loan l on c.customer_id=l.customer_id;
+
+	
+
+11.	Show **account details with customer phone number**.
+
+ans:
+		SELECT a.*, c.phone
+		FROM Account a
+		JOIN Customer c ON a.cust_id = c.cust_id;
+
+
+12.	Display **transaction details with customer name**.
+
+ans:			
+		SELECT t.*, c.name AS customer_name
+		FROM Transactions t
+		JOIN Account a ON t.acc_no = a.acc_no
+		JOIN Customer c ON a.cust_id = c.cust_id;
+
+
+13.	
+
+
