@@ -1,0 +1,359 @@
+Assignments – Day 6
+
+Stored Procedures::
+1.	Write a stored procedure which will find avg of all the salaries in the table. Display avg sal in the procedure.
+ans: 
+		delimiter //
+		drop procedure if exists avg_salary;
+		create procedure avg_salary() 
+		begin
+		select avg(sal) as avg_salary from emp;
+		end //
+		delimiter ;
+		
+		call avg_salary();
+	
+2.	Write a stored procedure which will find avg salary of dept no 20. Display avg salary out of the procedure.
+ans:
+	
+		delimiter //
+		drop procedure if exists avg_salary_dept20;
+		create procedure avg_salary_dept20(out p_avg_sal decimal(7,2)) 
+		begin
+		select avg(sal) as avg_salary from emp where deptno = 20;
+		end //
+		delimiter ;
+		
+		call avg_sal_dept20(@avg);
+		select @avg;
+	
+	
+	
+3.	Write a stored procedure which will find avg salary for any deptno passed to it.  Display avg salary out of the procedure. 
+ans:
+
+		delimiter //
+		drop procedure if exists avg_salary_deptX;
+		create procedure avg_salary_deptX(in p_deptno int, out p_avg_sal decimal(7,2)) 
+		begin
+		select avg(sal) as avg_salary from emp where deptno = p_deptno;
+		end //
+		delimiter ;
+		
+		call avg_salary_deptX(10, @avg);
+		
+	
+	
+4.	Write a procedure to calculate total salary of an employee. Pass empno to the procedure and display total salary out of the procedure. 
+Total sal = sal +comm.
+ans:
+	
+	delimiter //
+	drop procedure if exists total_salary;
+	create procedure total_salary(in p_empno int, out p_ts decimal(7,2))
+	begin 
+		select sal+ifnull(comm, 0) into p_ts from emp where empno = p_empno;
+	end //
+	delimiter ;
+	
+	call total_salary(7369, @total);
+	select @total;
+		
+	
+5.	Pass empno as a in parameter to the procedure. If empno is found in the table then, display corresponding salary out of the procedure. If empno is not found in the table then, display 0 out of the procedure. 
+ans:
+	
+	delimiter //
+	drop procedure if exists emp_salary;
+	create procedure emp_salary(in p_empno int, out p_sal decimal(7, 2))
+	begin
+		declare v_sal decimal(7,2);
+		select sal into v_sal from emp where empno = p_empno;
+		if v_sal is not null then 
+			set p_sal = v_sal;
+		else 
+			set p_sal = 0;
+		end if;
+	end //
+	delimiter ;
+	
+	call emp_salary(7360, @sal);
+	select @sal;
+
+6.	Write a procedure which will display empno, mrg and name of the manager. Pass empno as a parameter to the procedure.\
+ans:
+	
+	delimiter //
+	drop procedure if exists emp_mgr_details;
+	create procedure emp_mgr_details(in p_empno int)
+	begin	
+	select e1.empno, e1.ename, e1.mgr, e2.ename  from emp e1 
+	join emp e2 on (e1.mgr = e2.empno)
+	where e1.empno = p_empno;
+	end //
+	delimiter ;
+	
+	call emp_mgr_details();
+	
+7.	Write a procedure to pass hiredate as an input parameter and display hiredate and count of employees hired in the same year.  Display it out of the procedure.
+ans:
+	
+	delimiter //
+	drop procedure if exists hrdt_cntemp;
+	create procedure hrdt_cntemp(in p_hiredate date)
+	begin	
+	select ename,hiredate, count(*)over() from emp where year(p_hiredate) = year(hiredate); 
+	end //
+	delimiter ;
+	
+	call hrdt_cntemp('1981-12-03');
+	
+	//version 2
+	
+	delimiter //
+	drop procedure if exists hrdt_cntemp2;
+	create procedure hrdt_cntemp2(in p_hiredate date)
+	begin	
+	select p_hiredate, count(*) as total_in_year from emp where year(hiredate) = year(p_hiredate); 
+	end //
+	delimiter ;
+	
+	call hrdt_cntemp2('1981-12-03');
+
+
+Copy emp table as emp_data and copy dept table as dept_data. Solve queries using 
+Above tables
+1.	Write a procedure and pass empno as a parameter. Check the commission in the table. If employee is 'analyst' then set commission to 2000 if  employee dose not earn any commission. Update in the emp_data table.
+ans:
+	
+	
+	
+	delimiter //
+	drop procedure if exists analyst_2000;
+	create procedure analyst_2000(in p_empno int )
+	begin 
+	update emp_data
+	set comm=2000
+	where empno=p_empno
+	and comm is null
+	and job='Analyst';
+	end //
+	delimiter ;
+		call analyst_2000(7788);
+		
+	delimiter //
+	drop procedure if exists analyst_2000;
+	create procedure analyst_2000(in p_empno int) 
+		begin
+		declare v_job varchar(50);
+		declare v_comm decimal(10, 2);
+		
+		select job, comm into v_job, v_comm 
+		from emp_data
+		where p_empno = empno;
+		
+		if upper(v_job) = 'ANALYST' and v_comm is null
+			then
+			update emp_data
+			set comm = 2000;
+		end if;
+		end //
+	delimiter ;
+	
+2.	Write the procedure to accept job as in parameter and perform following actions.
+Hike in sal by  5% if employee is manager.
+Hike in sal by 10% if employee is clerk
+Hike in sal by 7% if employee is analyse
+otherwise hike by 3%.
+Make necessary changes in emp_data  table.
+ans:
+
+	delimiter //
+	drop procedure if exists hike_job;
+	create procedure hike_job(in p_job varchar(9))
+	begin
+	declare v_multiplier decimal(9,2);
+	if(p_job = 'MANAGER') then  set v_multiplier = 1.05;
+	elseif(p_job = 'CLERK') then set v_multiplier = 1.1; 
+	elseif(p_job = 'ANALYST') then set v_multiplier = 1.07;
+	else set v_multiplier = 1.03;
+	end if;
+	update emp_data 
+	set sal = sal*v_multiplier where job = p_job;
+	end //
+	delimiter ;
+	
+	call hike_job('ANALYST');
+
+Stored Functions::
+1.	Write a function to calculate total salary of an employee. Call the function in select clause.
+total sal=sal+ comm
+ans:
+
+		delimiter //
+		drop function if exi
+	
+	
+1. write a function to calculate total salary of an employee. call the function in select clause.
+total sal=sal+ comm
+ans:
+delimiter //
+drop function if exists total_salary //
+create function total_salary(p_empno int) returns decimal(7,2)
+deterministic
+begin
+    declare v_sal decimal(7,2);
+    declare v_comm decimal(7,2);
+    select sal, ifnull(comm, 0) into v_sal, v_comm from emp where empno = p_empno;
+    return v_sal + v_comm;
+end //
+delimiter ;
+-- call in select: select empno, ename, total_salary(empno) as total_sal from emp;
+
+2. write a function to generate an email. call the function in select clause. email is generated as follows
+first 2 letters of name + last 2 letters of job @knowit.com
+ans:
+delimiter //
+drop function if exists gen_email //
+create function gen_email(p_ename varchar(10), p_job varchar(9)) returns varchar(50)
+deterministic
+begin
+    return lower(concat(substr(p_ename, 1, 2), substr(p_job, -2), '@knowit.com'));
+end //
+delimiter ;
+-- call in select: select ename, job, gen_email(ename, job) as email from emp;
+
+3. write a function which returns a factorial of a number to the procedure 'facto'. check if number is positive. print the factorial of a number outside the procedure. pass number as a in parameter to the procedure. call function to calculate factorial of a number in the procedure. function should return factorial to the procedure and procedure should display number and the factorial out of procedure.
+ans:
+delimiter //
+drop function if exists factorial //
+create function factorial(p_num int) returns int
+deterministic
+begin
+    declare v_result int default 1;
+    declare i int default 1;
+    if p_num < 0 then
+        signal sqlstate '45000' set message_text = 'number must be positive';
+    end if;
+    while i <= p_num do
+        set v_result = v_result * i;
+        set i = i + 1;
+    end while;
+    return v_result;
+end //
+delimiter ;
+
+delimiter //
+drop procedure if exists facto //
+create procedure facto(in p_num int)
+begin
+    declare v_fact int;
+    set v_fact = factorial(p_num);
+    select p_num as number, v_fact as factorial;
+end //
+delimiter ;
+-- call: call facto(5);
+
+4. pass empno as a parameter to the procedure and display 'award' as a remark if experience of employee is more than 44 years else display null for that employee.
+write a function which will calculate and return experience (no of years of services) to the procedure.
+
+
+Expected Output:
+ename    deptno experience remark
+----------------------------------
+Amit      10         44     null
+Seema     20         45     Award
+
+window functions
+1. practice all queries given in the demo.
+ans:
+-- demo practice queries would be specific to the demo provided in class.
+-- common window function demos include row_number, rank, dense_rank, lag, lead, ntile, etc.
+
+2. display ename, sal, job, deptno, job wise max sal only for managers, clerks, salesman working in dept 10 and 20.
+ans:
+select ename, sal, job, deptno,
+       max(sal) over (partition by job) as job_max_sal
+from emp
+where job in ('manager', 'clerk', 'salesman')
+  and deptno in (10, 20);
+
+3. display all empno, ename, deptno, sal, avg(sal), min(sal), max(sal) for salesman
+ans:
+select empno, ename, deptno, sal,
+       avg(sal) over () as avg_sal,
+       min(sal) over () as min_sal,
+       max(sal) over () as max_sal
+from emp
+where job = 'salesman';
+
+4. write a query to display maximum salary, minimum salary and average sal along with emp name, deptno and dname and location for all departments.
+ans:
+select e.ename, e.deptno, d.dname, d.loc,
+       max(e.sal) over (partition by e.deptno) as max_sal,
+       min(e.sal) over (partition by e.deptno) as min_sal,
+       avg(e.sal) over (partition by e.deptno) as avg_sal
+from emp e
+join dept d on e.deptno = d.deptno;
+
+5. find sum of salary for all employees whose sal > 1000. query should display ename, sal, sum of salary, should be displayed according to the job.
+ans:
+select ename, sal, job,
+       sum(sal) over (partition by job) as sum_sal_by_job
+from emp
+where sal > 1000;
+
+6. find number of clerks working in each department. display ename, job and count of 'clerks', min sal incurred by clerks and avg salary for job clerk.
+ans:
+select ename, job,
+       count(*) over (partition by deptno) as clerks_count,
+       min(sal) over (partition by deptno) as min_sal_clerks,
+       avg(sal) over (partition by deptno) as avg_sal_clerks
+from emp
+where job = 'clerk';
+
+7. find how many employees are working under same manager display empno, ename, mgr, count of employees working under that mgr.
+ans:
+select empno, ename, mgr,
+       count(*) over (partition by mgr) as emp_count_under_mgr
+from emp
+where mgr is not null;
+
+8. display ename, sal for dept 10 with max sal at the top.
+ans:
+select ename, sal
+from emp
+where deptno = 10
+order by sal desc;
+
+9. display information of employee earning lowest sal in each job. query should display name, deptno, job, avg sal for job.
+ans:
+select ename, deptno, job, avg_sal
+from (
+    select ename, deptno, job,
+           avg(sal) over (partition by job) as avg_sal,
+           row_number() over (partition by job order by sal asc) as rn
+    from emp
+) t
+where rn = 1;
+
+10. calculate the cumulative total of salary amounts over time. the cumulative total should be ordered by hiredate.
+ans:
+select ename, hiredate, sal,
+       sum(sal) over (order by hiredate rows unbounded preceding) as cumulative_sal
+from emp
+order by hiredate;
+
+11. for all emps in dept 20 find the salary of previously joined employee.
+ans:
+select ename, hiredate, sal,
+       lag(sal) over (order by hiredate) as prev_emp_sal
+from emp
+where deptno = 20
+order by hiredate;
+
+12. for every employee, list their salary and the highest salary in their respective department. display ename, job, deptno, sal, highest sal of that dept.
+ans:
+select ename, job, deptno, sal,
+       max(sal) over (partition by deptno) as highest_sal_dept
+from emp;
