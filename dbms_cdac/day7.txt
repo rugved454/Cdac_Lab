@@ -1,0 +1,148 @@
+Assignments – Day 7
+
+
+Common Table Expressions::
+1. Write CTE having recursive function which display first 15 even numbers.
+ans:
+		WITH Recursive even_no as
+		(
+			select 2 as n , 1 as cnt
+			union all 
+			select n+2,cnt+1
+			from even_no
+			where cnt<15
+		
+		)
+		select n from even_no;
+
+2. Write a query to find the average salary for each department and then list the names of
+employees who earn more than the avg sal of their respective departments.
+ans:
+		With average as 
+		(
+			select deptno,avg(sal) av
+			from emp 
+			group by deptno
+		)
+		select e.ename,e.sal,e.deptno
+		from emp e
+		join average avg on e.deptno=av.deptno
+		where e.sal>avg.av;
+
+
+3. Write a query to display empno, ename, deptno and sum(sal)  using CTE.
+ans:
+		With display_emp as
+		(
+		select e.ename,e.deptno,d.dname
+		from emp e
+		join dept d
+		on e.deptno=d.deptno
+		)
+		
+		select sum(e.sal) 
+		from display_emp e1
+		join emp e
+		on e1.deptno=e.deptno;		
+	
+
+4. Write a query to display top 2 departments having avg salay. Display deptno, dname and avg sal.
+ans:
+		With top_2 as
+		(
+			select d.deptno, d.dname, avg(e.sal) as avg_sal
+			from dept d
+			join emp e on e.deptno=d.deptno
+			group by d.deptno,d.dname
+		)
+		select deptno,dname,avg_sal
+		from top_2
+		order by avg_sal desc
+		limit 2;
+		
+		
+Cursors::
+1. Write a cursor to increment salary of all employees by 5% if
+employee has joined in year 1981.
+ans:
+		delimiter //
+		create procedure increment_sal()
+		begin
+			declare emp_id int;
+			declare emp_sal decimal(7,2);
+			declare emp_date date;
+			declare f int default 0;
+			
+			declare cur cursor for
+				select empno,sal,hiredate from emp;
+			declare continue handler for not found set f=1;
+			open cur;
+			x: loop
+				fetch cur into emp_id,emp_sal,emp_date;
+				if f=1 then 
+					leave x;
+				end if ;
+				
+				if year(emp_date)=1981 then 
+					update emp
+					set sal=sal+(sal*0.05)
+					where empno=emp_id;
+				end if ;
+				end loop;
+				close cur;
+			end //
+			delimiter ;
+			
+				
+
+
+2. Write a cursor which will handle all rows having deptno 20.
+ans:
+
+
+	
+	
+
+
+
+
+
+3. Write a cursor to increment salary as follows
+     Clerk 10 % rise
+     Manager 5% rise
+     Analyst 7% rise.
+     No rise given for other jobs.
+4. Pass job as a parameter to procedure and display all
+employees working​​​​ for the specified job using cursor.
+
+Triggers::
+1. Consider following tables
+    product(pid, pname, price, qty)
+    product_details(pid,amt)
+    amt = product.price * qty
+Write a trigger which will calculate amt every time any update is
+done in the price of an item. 
+Hint : after update trigger
+2. Consider following table
+   emp_wage(eno, ename, sal, over_time)
+   eno : pk auto_inc
+Write a trigger which will insert over_time as 400 if value of
+over_time entered is null.    
+Hint : before insert trigger
+3. Consider following table
+      order_master(oid, pname, qty, price)
+      oid : pk auto_inc
+      order_log(oid ,odate, amt)
+Write a trigger which will create a log of all orders once order
+is placed.
+Hint : after insert trigger
+4. Create a table emp_data(eno PK auto_inc, ename,job,sal)
+Add following data
+(&#39;Akshay&#39;,&#39;Developer&#39;,30000)
+(&#39;Anika&#39;,&#39;Analyst&#39;,50000)
+(&#39;Radhika&#39;&#39;Manager&#39;,65000)
+Write a trigger to keep log of the data if any updation is done
+in the salary.
+Keep data in emp_log(eno, ename,job, osal, nsal)
+where osal : is previous salary
+      nsal : is updated salary
